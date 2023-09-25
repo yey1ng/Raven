@@ -1,0 +1,30 @@
+﻿/*
+    filename:       configuration_module.h
+    author:         Ming Dong
+    date:           2018-Aug-21
+    description:    dome module configuration file
+*/
+
+#pragma once
+
+#include <configuration_@DOMECM_DEF_PROJECTNAME@.h>
+
+#if DOMECFG_MODULETYPE == DOMECFG_E_DYNAMIC_MODULE
+    #if DOMECFG_IS_WINDOWS
+        #ifdef DOME_@DOMECM_MOD_MODNAMEUP@_EXPORTS
+            #define DOME_@DOMECM_MOD_MODNAMEUP@_API      __declspec(dllexport)
+        #else
+            #define DOME_@DOMECM_MOD_MODNAMEUP@_API      __declspec(dllimport)
+        #endif
+    #elif (DOMECFG_IS_APPLEOS) || (DOMECFG_IS_POSIX)
+        #ifdef DOME_@DOMECM_MOD_MODNAMEUP@_EXPORTS
+            #define DOME_@DOMECM_MOD_MODNAMEUP@_API      __attribute__((visibility("default")))
+        #else
+            #define DOME_@DOMECM_MOD_MODNAMEUP@_API
+        #endif
+    #else
+        #define DOME_@DOMECM_MOD_MODNAMEUP@_API
+    #endif
+#else
+    #define DOME_@DOMECM_MOD_MODNAMEUP@_API
+#endif

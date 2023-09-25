@@ -1,0 +1,20 @@
+/*
+    filename:       configuration_project.h
+    author:         Raven
+    date:           2023-09-22
+    description:    project configuration file
+*/
+
+#pragma once
+
+/******************************************************************************
+    Project Name
+******************************************************************************/
+#define RAVENCFG_PROJECTNAME                "@RAVENCM_DEF_PROJECTNAME@"
+
+/******************************************************************************
+    Use shared library or static library
+******************************************************************************/
+#define RAVENCFG_E_STATIC_MODULE            0
+#define RAVENCFG_E_DYNAMIC_MODULE           1
+#define RAVENCFG_MODULETYPE                 @RAVENCM_GLOBAL_MODULETYPE@
