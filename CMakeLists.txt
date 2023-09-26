@@ -46,6 +46,7 @@ set(RAVENCM_GLOBAL_DISABLEZEROCHECK             ${RAVENCM_USER_DISABLEZEROCHECK}
 set(RAVENCM_GLOBAL_DEFINES                      "-DUNICODE" "-D_UNICODE")
 set(RAVENCM_GLOBAL_INCLUDEDIRS                  "./")
 set(RAVENCM_GLOBAL_LIBRARYDIRS                  "./")
+set(RAVENCM_GLOBAL_MODULETYPE                   "RAVENCFG_E_${RAVENCM_USER_MODULETYPE}")
 
 set(CMAKE_SUPPRESS_REGENERATION                 ${RAVEN_USER_DISABLEZEROCHECK})
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG        "${CMAKE_BINARY_DIR}/bin")
@@ -67,6 +68,7 @@ set(RAVENCM_GLOBAL_INCLUDEDIRS
 "${CMAKE_BINARY_DIR}"
 "${CMAKE_SOURCE_DIR}"
 "${Vulkan_INCLUDE_DIR}"
+"${CMAKE_SOURCE_DIR}/raven/"
 "${CMAKE_SOURCE_DIR}/external/"
 "${CMAKE_SOURCE_DIR}/external/assimp/include"
 "${CMAKE_SOURCE_DIR}/external/eigen"
@@ -82,10 +84,17 @@ set(RAVENCM_GLOBAL_INCLUDEDIRS
 
 if (NOT EMSCRIPTEN)
     add_subdirectory(external/glfw)
+    set_property(TARGET glfw PROPERTY FOLDER "external/GLFW3")
+    set_property(TARGET uninstall PROPERTY FOLDER "external/GLFW3")
+    set_property(TARGET update_mappings PROPERTY FOLDER "external/GLFW3")
 endif()
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(external/assimp)
+set_property(TARGET assimp PROPERTY FOLDER "external/assimp")
+set_property(TARGET unit PROPERTY FOLDER "external/assimp")
+set_property(TARGET UpdateAssimpLibsDebugSymbolsAndDLLs PROPERTY FOLDER "external/assimp")
+set_property(TARGET zlibstatic PROPERTY FOLDER "external/assimp")
 
 mark_as_advanced(FORCE ASSIMP_ANDROID_JNIIOSYSTEM)
 mark_as_advanced(FORCE ASSIMP_ARCHIVE_OUTPUT_DIRECTORY)
@@ -136,7 +145,7 @@ mark_as_advanced(FORCE GLFW_USE_HYBRID_HPG)
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 # 设置配置文件
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
-configure_file( "${CMAKE_SOURCE_DIR}/configuration_module.h.in"
+configure_file( "${CMAKE_SOURCE_DIR}/configuration_project.h.in"
                 "${CMAKE_BINARY_DIR}/configuration_${RAVENCM_DEF_PROJECTNAME}.h")
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -186,6 +195,56 @@ set(RAVENCM_MOD_INCLUDEDIRS                     "")
 set(RAVENCM_MOD_LIBRARYDIRS                     "")
 set(RAVENCM_MOD_LIBRARIES                       "")
 set(RAVENCM_MOD_DEPENDMODULES                   "")
+set(RAVENCM_MOD_DEFINES                         "")
+set(RAVENCM_MOD_PLUGINS                         "")
+
+add_subdirectory(${RAVENCM_MOD_PATH}${RAVENCM_MOD_NAME})
+install( 
+    TARGETS ${RAVENCM_MOD_NAME} 
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    FRAMEWORK DESTINATION framework
+    BUNDLE DESTINATION app
+)
+
+set(RAVENCM_MOD_NAME                            "vkcore")
+set(RAVENCM_MOD_PATH                            "raven/")
+set(RAVENCM_MOD_MODULEMODE                      "0")
+set(RAVENCM_MOD_ISGUIAPPLICATION                "0")
+set(RAVENCM_MOD_BUNDLE_NAME                     "vkcore")
+set(RAVENCM_MOD_BUNDLE_ID                       "raven.vkcore")
+set(RAVENCM_MOD_FRAMEWORK_ID                    "raven.vkcore")
+set(RAVENCM_MOD_FRAMEWORK_PUBHEADER             "vkcore.h")
+set(RAVENCM_MOD_INCLUDEDIRS                     "")
+set(RAVENCM_MOD_LIBRARYDIRS                     "")
+set(RAVENCM_MOD_LIBRARIES                       "")
+set(RAVENCM_MOD_DEPENDMODULES                   "core")
+set(RAVENCM_MOD_DEFINES                         "")
+set(RAVENCM_MOD_PLUGINS                         "")
+
+add_subdirectory(${RAVENCM_MOD_PATH}${RAVENCM_MOD_NAME})
+install( 
+    TARGETS ${RAVENCM_MOD_NAME} 
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    FRAMEWORK DESTINATION framework
+    BUNDLE DESTINATION app
+)
+
+set(RAVENCM_MOD_NAME                            "framework")
+set(RAVENCM_MOD_PATH                            "raven/")
+set(RAVENCM_MOD_MODULEMODE                      "1")
+set(RAVENCM_MOD_ISGUIAPPLICATION                "1")
+set(RAVENCM_MOD_BUNDLE_NAME                     "framework")
+set(RAVENCM_MOD_BUNDLE_ID                       "raven.framework")
+set(RAVENCM_MOD_FRAMEWORK_ID                    "raven.framework")
+set(RAVENCM_MOD_FRAMEWORK_PUBHEADER             "framework.h")
+set(RAVENCM_MOD_INCLUDEDIRS                     "")
+set(RAVENCM_MOD_LIBRARYDIRS                     "")
+set(RAVENCM_MOD_LIBRARIES                       "")
+set(RAVENCM_MOD_DEPENDMODULES                   "core" "vkcore")
 set(RAVENCM_MOD_DEFINES                         "")
 set(RAVENCM_MOD_PLUGINS                         "")
 

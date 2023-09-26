@@ -1,0 +1,24 @@
+﻿/*
+    filename:       configuration_module.h
+    author:         Ming Dong
+    date:           2018-Aug-21
+    description:    RAVEN module configuration file
+*/
+
+#pragma once
+
+#include <configuration_@RAVENCM_DEF_PROJECTNAME@.h>
+
+#if RAVENCFG_MODULETYPE == RAVENCFG_E_DYNAMIC_MODULE
+    #if RAVENCFG_IS_WINDOWS
+        #ifdef RAVEN_@RAVENCM_MOD_MODNAMEUP@_EXPORTS
+            #define RAVEN_@RAVENCM_MOD_MODNAMEUP@_API      __declspec(dllexport)
+        #else
+            #define RAVEN_@RAVENCM_MOD_MODNAMEUP@_API      __declspec(dllimport)
+        #endif
+    #else
+        #define RAVEN_@RAVENCM_MOD_MODNAMEUP@_API
+    #endif
+#else
+    #define RAVEN_@RAVENCM_MOD_MODNAMEUP@_API
+#endif
