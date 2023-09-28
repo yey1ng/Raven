@@ -12,3 +12,4 @@ description:
 #include "typedefs.h"
 #include "module.h"
 #include "logger.h"
+#include "memory.h"

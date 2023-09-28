@@ -45,7 +45,7 @@ public:
 
 	RVKInstance() noexcept;
 	RVKInstance(const VkInstanceCreateInfo& i_CreateInfo, Bool i_Debug, const VkDebugUtilsMessengerCreateInfoEXT& i_DebugUtilsMessengerCreateInfo) noexcept;
-	~RVKInstance() noexcept;
+	virtual ~RVKInstance() noexcept;
 
 	Bool isCreated() const noexcept;
 	void create(const VkInstanceCreateInfo& i_CreateInfo, Bool i_Debug, const VkDebugUtilsMessengerCreateInfoEXT& i_DebugUtilsMessengerCreateInfo) noexcept;

@@ -6,6 +6,7 @@ description:
 */
 
 #pragma once
+#include <core/public/core.h>
 #include "vkcore.h"
 #include "vkinstance.h"
 #include "vkdevice.h"

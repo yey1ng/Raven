@@ -65,6 +65,17 @@ description:
 #define R_C(str)						(str)
 #define R_WC(str)						(L##str)
 
+#define RAVEN_WIDEN2(x)                 R_WC(x)
+#define RAVEN_WIDEN(x)                  RAVEN_WIDEN2(x)
+#define RAVEN_WFILENAME                 RAVEN_WIDEN(__FILE__)
+
+#define RAVEN_PP_OVERLOAD(FUNC, ...)                                                        \
+BOOST_PP_IF(                                                                                \
+    BOOST_PP_IS_EMPTY(__VA_ARGS__),                                                         \
+    FUNC##0(),                                                                              \
+    BOOST_PP_CAT(BOOST_PP_OVERLOAD(FUNC,__VA_ARGS__)(__VA_ARGS__),BOOST_PP_EMPTY())         \
+)
+
 /// Macro to declare the object class name.
 #define RAVEN_OBJECT(class_)                                \
 public:                                                     \

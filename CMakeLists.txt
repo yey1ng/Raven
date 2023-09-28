@@ -96,6 +96,8 @@ set_property(TARGET unit PROPERTY FOLDER "external/assimp")
 set_property(TARGET UpdateAssimpLibsDebugSymbolsAndDLLs PROPERTY FOLDER "external/assimp")
 set_property(TARGET zlibstatic PROPERTY FOLDER "external/assimp")
 
+add_subdirectory(external/boost)
+
 mark_as_advanced(FORCE ASSIMP_ANDROID_JNIIOSYSTEM)
 mark_as_advanced(FORCE ASSIMP_ARCHIVE_OUTPUT_DIRECTORY)
 mark_as_advanced(FORCE ASSIMP_ASAN)
@@ -229,7 +231,7 @@ install(
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
-    FRAMEWORK DESTINATION framework
+    FRAMEWORK DESTINATION framework-
     BUNDLE DESTINATION app
 )
 
