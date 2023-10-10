@@ -28,6 +28,7 @@ description:
 #include <optional>
 #include <vector>
 #include <array>
+#include <set>
 
 #include "configuration_core.h"
 

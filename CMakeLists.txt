@@ -76,6 +76,8 @@ set(RAVENCM_GLOBAL_INCLUDEDIRS
 "${CMAKE_SOURCE_DIR}/external/ImGuizmo"
 "${CMAKE_SOURCE_DIR}/external/stb"
 "${CMAKE_SOURCE_DIR}/external/VMA/include"
+"${CMAKE_SOURCE_DIR}/external/mimalloc/include"
+"${CMAKE_SOURCE_DIR}/external/boost/libs/preprocessor/include"
 )
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -135,6 +137,9 @@ set_property(TARGET boost_url PROPERTY FOLDER "external/boost")
 set_property(TARGET boost_variant2 PROPERTY FOLDER "external/boost")
 set_property(TARGET boost_wave PROPERTY FOLDER "external/boost")
 set_property(TARGET boost_wserialization PROPERTY FOLDER "external/boost")
+
+add_subdirectory(external/mimalloc)
+set_property(TARGET mimalloc PROPERTY FOLDER "external/mimalloc")
 
 mark_as_advanced(FORCE ASSIMP_ANDROID_JNIIOSYSTEM)
 mark_as_advanced(FORCE ASSIMP_ARCHIVE_OUTPUT_DIRECTORY)
@@ -243,6 +248,33 @@ mark_as_advanced(FORCE SSL_EAY_DEBUG)
 mark_as_advanced(FORCE SSL_EAY_RELEASE)
 mark_as_advanced(FORCE zstd_DIR)
 mark_as_advanced(FORCE CMAKE_MC_COMPILER)
+
+mark_as_advanced(FORCE MI_BUILD_OBJECT)
+mark_as_advanced(FORCE MI_BUILD_SHARED)
+mark_as_advanced(FORCE MI_BUILD_STATIC)
+mark_as_advanced(FORCE MI_BUILD_TESTS)
+mark_as_advanced(FORCE MI_CHECK_FULL)
+mark_as_advanced(FORCE MI_DEBUG_FULL)
+mark_as_advanced(FORCE MI_DEBUG_TSAN)
+mark_as_advanced(FORCE MI_DEBUG_UBSAN)
+mark_as_advanced(FORCE MI_INSTALL_TOPLEVEL)
+mark_as_advanced(FORCE MI_LOCAL_DYNAMIC_TLS)
+mark_as_advanced(FORCE MI_NO_PADDING)
+mark_as_advanced(FORCE MI_OSX_INTERPOSE)
+mark_as_advanced(FORCE MI_OSX_ZONE)
+mark_as_advanced(FORCE MI_OVERRIDE)
+mark_as_advanced(FORCE MI_PADDING)
+mark_as_advanced(FORCE MI_SECURE)
+mark_as_advanced(FORCE MI_SEE_ASM)
+mark_as_advanced(FORCE MI_SHOW_ERRORS)
+mark_as_advanced(FORCE MI_SKIP_COLLECT_ON_EXIT)
+mark_as_advanced(FORCE MI_TRACK_ASAN)
+mark_as_advanced(FORCE MI_TRACK_ETW)
+mark_as_advanced(FORCE MI_TRACK_VALGRIND)
+mark_as_advanced(FORCE MI_USE_CXX)
+mark_as_advanced(FORCE MI_USE_LIBATOMIC)
+mark_as_advanced(FORCE MI_WIN_REDIRECT)
+mark_as_advanced(FORCE MI_XMALLOC)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 # 设置配置文件

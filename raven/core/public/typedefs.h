@@ -32,11 +32,11 @@ typedef char32_t            U32Char;
 typedef char                Char;
 typedef wchar_t             WChar;
 
-#if RCFG_IS_32BIT
+#if RAVENCFG_IS_32BIT
 typedef S32                 Int;
 typedef U32                 Uint;
 #define R_UINT_MAX			0xFFffFFff
-#elif RCFG_IS_64BIT
+#elif RAVENCFG_IS_64BIT
 typedef S64                 Int;
 typedef U64                 Uint;
 #define R_UINT_MAX			0xFFffFFffFFffFFff

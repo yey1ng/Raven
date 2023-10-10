@@ -11,10 +11,10 @@ description:
 #include "typedefs.h"
 
 // Macros for quick access. File and line are added through the respective macros.
-#define R_LOG_INFO(x) log(x, std::string(__FILE__), __LINE__, RAVEN_NS::INFO)
-#define R_LOG_WARNING(x) log(x, std::string(__FILE__), __LINE__, RAVEN_NS::WARNING)
-#define R_LOG_ERROR(x) log(x, std::string(__FILE__), __LINE__, RAVEN_NS::ERR)
-#define R_LOG_FATAL(b, x) if(!(b)) { log(x, std::string(__FILE__), __LINE__, RAVEN_NS::FATAL); }
+#define R_LOG_INFO(...) log(formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::INFO)
+#define R_LOG_WARNING(...) log(formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::WARNING)
+#define R_LOG_ERROR(...) log(formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::ERR)
+#define R_LOG_FATAL(b, ...) if(!(b)) { log(formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::FATAL); }
 
 RAVEN_NAMESPACE_BEGIN
 

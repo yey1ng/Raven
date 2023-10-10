@@ -17,7 +17,7 @@ description:
     THE CORE LAYERS AND EXTENSIONS, WILL BE ADDED AUTOMATICALLY
 */
 #define RAVEN_VK_KHR_surface                                    1       // INSTANCE EXTENSION
-#define RAVEN_VK_KHR_surface                                    1       // DEVICE EXTENSION
+#define RAVEN_VK_KHR_swapchain                                  1       // DEVICE EXTENSION
 #define RAVEN_VK_KHR_win32_surface                              1       // INSTANCE EXTENSION FOR WINDOWS
 
 /*

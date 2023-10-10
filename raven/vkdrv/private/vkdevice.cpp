@@ -15,10 +15,10 @@ RVKDevice::RVKDevice(RVKInstance* i_pVKInstance) noexcept
 
 }
 
-RVKDevice::RVKDevice(RVKInstance* i_pVKInstance, U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo, std::vector<QUEUEFAMILY_USAGE>& i_QueueFamilyUsages) noexcept
+RVKDevice::RVKDevice(RVKInstance* i_pVKInstance, U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo, std::vector<VkQueueAssignment>& i_QueueAssignments) noexcept
 	: RVKInstanceChild(i_pVKInstance)
 {
-	create(i_PhysicalDeviceIdx, i_CreateInfo, i_QueueFamilyUsages);
+	create(i_PhysicalDeviceIdx, i_CreateInfo, i_QueueAssignments);
 }
 
 RVKDevice::~RVKDevice()
@@ -32,7 +32,7 @@ Bool RVKDevice::isCreated() const noexcept
 	return m_hDevice != VK_NULL_HANDLE;
 }
 
-void RVKDevice::create(U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo, std::vector<QUEUEFAMILY_USAGE>& i_QueueFamilyUsages) noexcept
+void RVKDevice::create(U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo, std::vector<VkQueueAssignment>& i_QueueAssignments) noexcept
 {
 	if (isCreated())
 		R_LOG_ERROR("VKDevice is Created");
@@ -43,7 +43,7 @@ void RVKDevice::create(U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo
 
 	m_PhysicalDeviceIdx = std::move(i_PhysicalDeviceIdx);
 	m_CreateInfo = std::move(i_CreateInfo);
-	m_QueueFamilyUsages = std::move(i_QueueFamilyUsages);
+	m_QueueAssignments = std::move(i_QueueAssignments);
 
 	RAVEN_VULKANFUNCTION_DEVICE(vkGetDeviceQueue, m_hDevice);						// VK_VERSION_1_0
 	RAVEN_VULKANFUNCTION_DEVICE(vkGetDeviceQueue2, m_hDevice);                      // VK_VERSION_1_1
@@ -254,71 +254,31 @@ void RVKDevice::create(U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo
 		l_CommandPoolCreateInfo.pNext = R_NULL;
 		const VkDeviceQueueCreateInfo* l_DeviceQueueCreateInfos = m_CreateInfo.pQueueCreateInfos;
 
+		// update queue family and queue assignment information
+		std::vector<VkQueueFamilyProperties2> l_QueueFamilies = instance().getPhysicalDeviceQueueFamilyProperties(m_PhysicalDeviceIdx);
+		m_QueueFamilies.reserve(l_QueueFamilies.size());
+		for(const auto& l_QueueFamily : l_QueueFamilies)
+		{
+			QueueFamilyInfo_t l_QueueFamilyInfo{};
+			l_QueueFamilyInfo.m_QueueFlags = l_QueueFamily.queueFamilyProperties.queueFlags;
+			l_QueueFamilyInfo.m_pCommandPool = R_NULL;
+
+			m_QueueFamilies.emplace_back(std::move(l_QueueFamilyInfo));
+		}
+
 		for (U32 i = 0; i < m_CreateInfo.queueCreateInfoCount; ++i)
 		{
-			const auto& l_Usage = m_QueueFamilyUsages[i];
-			const auto& l_DeviceQueueCreateInfo = l_DeviceQueueCreateInfos[i];
-			switch (l_Usage)
+			const auto& l_QueueCreateInfo = m_CreateInfo.pQueueCreateInfos[i];
+			for (U32 j = 0; j < l_QueueCreateInfo.queueCount; ++j)
 			{
-			case QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY:
-			{
-				for (U32 j = 0; j < l_DeviceQueueCreateInfo.queueCount; ++j)
-				{
-					VkQueue l_VkQueue = VK_NULL_HANDLE;
-					rvkGetDeviceQueue(m_hDevice, l_DeviceQueueCreateInfo.queueFamilyIndex, j, &l_VkQueue);
-					m_GraphicsQueues.push_back(l_VkQueue);
-				}
-
-				l_CommandPoolCreateInfo.queueFamilyIndex = l_DeviceQueueCreateInfo.queueFamilyIndex;
-				rvkCreateCommandPool(m_hDevice, &l_CommandPoolCreateInfo, allocatorVK(), &m_GraphicsCommandPool.value());
+				VkQueue l_Queue;
+				VkDeviceQueueInfo2 l_QueueInfo2{};
+				l_QueueInfo2.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
+				l_QueueInfo2.queueFamilyIndex = l_QueueCreateInfo.queueFamilyIndex;
+				l_QueueInfo2.queueIndex = j;
+				m_QueueFamilies[l_QueueCreateInfo.queueFamilyIndex].m_hQueues.push_back(l_Queue);
 			}
-			break;
-
-			case QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY:
-			{
-				for (U32 j = 0; j < l_DeviceQueueCreateInfo.queueCount; ++j)
-				{
-					VkQueue l_VkQueue = VK_NULL_HANDLE;
-					rvkGetDeviceQueue(m_hDevice, l_DeviceQueueCreateInfo.queueFamilyIndex, j, &l_VkQueue);
-					m_ComputeQueues.push_back(l_VkQueue);
-				}
-
-				l_CommandPoolCreateInfo.queueFamilyIndex = l_DeviceQueueCreateInfo.queueFamilyIndex;
-				rvkCreateCommandPool(m_hDevice, &l_CommandPoolCreateInfo, allocatorVK(), &m_ComputeCommandPool.value());
-			}
-			break;
-
-			case QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY:
-			{
-				for (U32 j = 0; j < l_DeviceQueueCreateInfo.queueCount; ++j)
-				{
-					VkQueue l_VkQueue = VK_NULL_HANDLE;
-					rvkGetDeviceQueue(m_hDevice, l_DeviceQueueCreateInfo.queueFamilyIndex, j, &l_VkQueue);
-					m_TransferQueues.push_back(l_VkQueue);
-				}
-
-				l_CommandPoolCreateInfo.queueFamilyIndex = l_DeviceQueueCreateInfo.queueFamilyIndex;
-				rvkCreateCommandPool(m_hDevice, &l_CommandPoolCreateInfo, allocatorVK(), &m_TransferCommandPool.value());
-			}
-			break;
-
-			case QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY:
-			{
-				for (U32 j = 0; j < l_DeviceQueueCreateInfo.queueCount; ++j)
-				{
-					VkQueue l_VkQueue = VK_NULL_HANDLE;
-					rvkGetDeviceQueue(m_hDevice, l_DeviceQueueCreateInfo.queueFamilyIndex, j, &l_VkQueue);
-					m_PresentQueues.push_back(l_VkQueue);
-				}
-
-				l_CommandPoolCreateInfo.queueFamilyIndex = l_DeviceQueueCreateInfo.queueFamilyIndex;
-				rvkCreateCommandPool(m_hDevice, &l_CommandPoolCreateInfo, allocatorVK(), &m_PresentCommandPool.value());
-			}
-			break;
-
-			default:
-				break;
-			}
+			rvkCreateCommandPool(m_hDevice, &l_CommandPoolCreateInfo, allocatorVK(), &m_QueueFamilies[l_QueueCreateInfo.queueFamilyIndex].m_pCommandPool);
 		}
 	}
 
@@ -367,144 +327,106 @@ VkDescriptorPool RVKDevice::getDescriptorPool() const noexcept
 	return m_DescriptorPool;
 }
 
-U32	RVKDevice::getQueueCount(QUEUEFAMILY_USAGE i_Usage) const noexcept
+U32	RVKDevice::getQueueFamilyIndex(VK_QUEUEFAMILY_USAGE i_Usage) const noexcept
 {
-	switch (i_Usage)
-	{
-	case QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY:
-		return getGraphicsQueueCount();
-		break;
-	case QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY:
-		return getComputeQueueCount();
-		break;
-	case QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY:
-		return getTransferQueueCount();
-		break;
-	case QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY:
-		return getPresentQueueCount();
-		break;
-	default:
-		break;
-	}
-
-	return 0;
+	return m_QueueAssignments[static_cast<U16>(i_Usage)].m_QueueFamily;
 }
 
-VkQueue	RVKDevice::getQueue(QUEUEFAMILY_USAGE i_Usage) const noexcept
+U32	RVKDevice::getQueueCount(VK_QUEUEFAMILY_USAGE i_Usage) const noexcept
 {
-	switch (i_Usage)
-	{
-	case QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY:
-		return getGraphicsQueue();
-		break;
-	case QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY:
-		return getComputeQueue();
-		break;
-	case QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY:
-		return getTransferQueue();
-		break;
-	case QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY:
-		return getPresentQueue();
-		break;
-	default:
-		break;
-	}
-
-	return VK_NULL_HANDLE;
+	return m_QueueAssignments[static_cast<U16>(i_Usage)].m_QueueCount;
 }
 
-VkCommandPool RVKDevice::getCommandPool(QUEUEFAMILY_USAGE i_Usage) const noexcept
+VkQueue	RVKDevice::getQueue(VK_QUEUEFAMILY_USAGE i_Usage, U32 i_Index) const noexcept
 {
-	switch (i_Usage)
-	{
-	case QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY:
-		return getGraphicsCommandPool();
-		break;
-	case QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY:
-		return getComputeCommandPool();
-		break;
-	case QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY:
-		return getTransferCommandPool();
-		break;
-	case QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY:
-		return getPresentCommandPool();
-		break;
-	default:
-		break;
-	}
+	R_LOG_FATAL(i_Index < getQueueCount(i_Usage), "Index > QueueCout!");
+	R_LOG_FATAL((m_QueueAssignments[static_cast<U16>(i_Usage)].m_QueueStart + i_Index) < m_QueueFamilies[getQueueFamilyIndex(i_Usage)].m_hQueues.size(), "Not Found Queue Index");
 
-	return VK_NULL_HANDLE;
+	return m_QueueFamilies[getQueueFamilyIndex(i_Usage)].m_hQueues[m_QueueAssignments[static_cast<U16>(i_Usage)].m_QueueStart + i_Index];
+}
+
+VkCommandPool RVKDevice::getCommandPool(VK_QUEUEFAMILY_USAGE i_Usage) const noexcept
+{
+	return m_QueueFamilies[getQueueFamilyIndex(i_Usage)].m_pCommandPool;
+}
+
+U32	RVKDevice::getGraphicsQueueFamilyIndex() const noexcept
+{
+	return getQueueFamilyIndex(VK_QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY);
 }
 
 U32	RVKDevice::getGraphicsQueueCount() const noexcept
 {
-	return static_cast<U32>(m_GraphicsQueues.size());
+	return getQueueCount(VK_QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY);
 }
 
 VkQueue	RVKDevice::getGraphicsQueue(U32 i_Index) const noexcept
 {
-	if (i_Index < m_GraphicsQueues.size())
-		return m_GraphicsQueues[i_Index];
-	else
-		return VK_NULL_HANDLE;
+	return getQueue(VK_QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY);
 }
 
 VkCommandPool RVKDevice::getGraphicsCommandPool() const noexcept
 {
-	return m_GraphicsCommandPool.value();
+	return getCommandPool(VK_QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY);
+}
+
+U32	RVKDevice::getComputeQueueFamilyIndex() const noexcept
+{
+	return getQueueFamilyIndex(VK_QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY);
 }
 
 U32	RVKDevice::getComputeQueueCount() const noexcept
 {
-	return static_cast<U32>(m_ComputeQueues.size());
+	return getQueueCount(VK_QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY);
 }
 
 VkQueue	RVKDevice::getComputeQueue(U32 i_Index) const noexcept
 {
-	if (i_Index < m_ComputeQueues.size())
-		return m_ComputeQueues[i_Index];
-	else
-		return VK_NULL_HANDLE;
+	return getQueue(VK_QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY);
 }
 VkCommandPool RVKDevice::getComputeCommandPool() const noexcept
 {
-	return m_ComputeCommandPool.value();
+	return getCommandPool(VK_QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY);
+}
+
+U32	RVKDevice::getTransferQueueFamilyIndex() const noexcept
+{
+	return getQueueFamilyIndex(VK_QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY);
 }
 
 U32	RVKDevice::getTransferQueueCount() const noexcept
 {
-	return static_cast<U32>(m_TransferQueues.size());
+	return getQueueCount(VK_QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY);
 }
 
 VkQueue	RVKDevice::getTransferQueue(U32 i_Index) const noexcept
 {
-	if (i_Index < m_TransferQueues.size())
-		return m_TransferQueues[i_Index];
-	else
-		return VK_NULL_HANDLE;
+	return getQueue(VK_QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY);
 }
 
 VkCommandPool RVKDevice::getTransferCommandPool() const noexcept
 {
-	return m_TransferCommandPool.value();
+	return getCommandPool(VK_QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY);
+}
+
+U32	RVKDevice::getPresentQueueFamilyIndex() const noexcept
+{
+	return getQueueFamilyIndex(VK_QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY);
 }
 
 U32	RVKDevice::getPresentQueueCount() const noexcept
 {
-	return static_cast<U32>(m_PresentQueues.size());
+	return getQueueCount(VK_QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY);
 }
 
 VkQueue	RVKDevice::getPresentQueue(U32 i_Index) const noexcept
 {
-	if (i_Index < m_PresentQueues.size())
-		return m_PresentQueues[i_Index];
-	else
-		return VK_NULL_HANDLE;
+	return getQueue(VK_QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY);
 }
 
 VkCommandPool RVKDevice::getPresentCommandPool() const noexcept
 {
-	return m_PresentCommandPool.value();
+	return getCommandPool(VK_QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY);
 }
 
 VmaAllocator RVKDevice::allocatorVMA() const noexcept

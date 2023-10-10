@@ -7,6 +7,7 @@ description:
 
 #pragma once
 
+#include "logger.h"
 #include "defines.h"
 #include "typedefs.h"
 #include <boost/preprocessor.hpp>
@@ -22,15 +23,15 @@ public:
 	virtual ~IMemoryAllocator_MT() noexcept {}
 
 	// FAST MEMORY ALLOCATION
-	virtual void* alloc(Uint i_Size, Uint i_AlignMode) noexcept = 0;
+	virtual void*		alloc(Uint i_Size, Uint i_AlignMode) noexcept = 0;
 	virtual void        free(void* i_Ptr) noexcept = 0;
 
 	// MEMORY ALLOCATION WITH META DATA
-	virtual void* allocMD(Uint i_Size, Uint i_AlignMode, U16 i_MDSize) noexcept = 0;
-	virtual void* allocMD(Uint i_Size, Uint i_AlignMode, U16 i_MDSize, const WChar* i_pFileName, Uint i_LineNo, const Char* i_pTag) noexcept = 0;
+	virtual void*		allocMD(Uint i_Size, Uint i_AlignMode, U16 i_MDSize) noexcept = 0;
+	virtual void*		allocMD(Uint i_Size, Uint i_AlignMode, U16 i_MDSize, const WChar* i_pFileName, Uint i_LineNo, const Char* i_pTag) noexcept = 0;
 	virtual void        freeMD(void* i_Ptr) noexcept = 0;
 
-	virtual void* getMetaData(const void* i_Ptr, U16* o_pSize) const noexcept = 0;
+	virtual void*		getMetaData(const void* i_Ptr, U16* o_pSize) const noexcept = 0;
 	virtual Uint        getSizeMD(const void* i_Ptr) const noexcept = 0;
 	virtual const WChar* getFileNameMD(const void* i_Ptr) const noexcept = 0;
 	virtual Uint        getLineNumMD(const void* i_Ptr) const noexcept = 0;
@@ -131,29 +132,29 @@ RAVEN_NAMESPACE_END
 #define RAVEN_ALIGNDEFAULT												alignof(std::max_align_t);
 
 #ifdef NDEBUG
-#define RAVEN_Alloc1(size)												RAVEN_DEFAULTMEMORYALLOCATOR->alloc(size, RAVEN_ALIGNDEFAULT)
-#define RAVEN_Alloc2(size, align)										RAVEN_DEFAULTMEMORYALLOCATOR->alloc(size, align)
-#define RAVEN_Alloc3(size, align, pAllocator)							pAllocator->alloc(size, align)
-#define RAVEN_Free1(ptr)                                                RAVEN_DEFAULTMEMORYALLOCATOR->freeMD(ptr)
-#define RAVEN_Free2(ptr, pAllocator)                                    pAllocator->freeMD(ptr)
-#define RAVEN_New1(TYPE)											    ::new(alignof(TYPE), RAVEN_DEFAULTMEMORYALLOCATOR) TYPE
-#define RAVEN_New2(TYPE, align)											::new(align, RAVEN_DEFAULTMEMORYALLOCATOR) TYPE
-#define RAVEN_New3(TYPE, align, pAllocator)								::new(align, pAllocator) TYPE
-#define RAVEN_Del1(ptr)                                                 RAVEN_NS::DeleteHelper(ptr, RAVEN_DEFAULTMEMORYALLOCATOR)
-#define RAVEN_Del2(ptr, pAllocator)                                     RAVEN_NS::DeleteHelper(ptr, pAllocator)
+#define RAVEN_ALLOC1(size)												RAVEN_DEFAULTMEMORYALLOCATOR->alloc(size, RAVEN_ALIGNDEFAULT)
+#define RAVEN_ALLOC2(size, align)										RAVEN_DEFAULTMEMORYALLOCATOR->alloc(size, align)
+#define RAVEN_ALLOC3(size, align, pAllocator)							pAllocator->alloc(size, align)
+#define RAVEN_FREE1(ptr)                                                RAVEN_DEFAULTMEMORYALLOCATOR->freeMD(ptr)
+#define RAVEN_FREE2(ptr, pAllocator)                                    pAllocator->freeMD(ptr)
+#define RAVEN_NEW1(TYPE)											    ::new(alignof(TYPE), RAVEN_DEFAULTMEMORYALLOCATOR) TYPE
+#define RAVEN_NEW2(TYPE, align)											::new(align, RAVEN_DEFAULTMEMORYALLOCATOR) TYPE
+#define RAVEN_NEW3(TYPE, align, pAllocator)								::new(align, pAllocator) TYPE
+#define RAVEN_DEL1(ptr)                                                 RAVEN_NS::DeleteHelper(ptr, RAVEN_DEFAULTMEMORYALLOCATOR)
+#define RAVEN_DEL2(ptr, pAllocator)                                     RAVEN_NS::DeleteHelper(ptr, pAllocator)
 #else
-#define RAVEN_Alloc1(size)												RAVEN_DEFAULTMEMORYALLOCATOR->allocMD(size, RAVEN_ALIGNDEFAULT, 0, RAVEN_WFILENAME, __LINE__, "unknown")
-#define RAVEN_Alloc2(size, align)										RAVEN_DEFAULTMEMORYALLOCATOR->allocMD(size, align, 0, RAVEN_WFILENAME, __LINE__, "unknown")
-#define RAVEN_Alloc3(size, align, pAllocator)							pAllocator->allocMD(size, align, 0, RAVEN_WFILENAME, __LINE__, "unknown")
-#define RAVEN_Free1(ptr)                                                RAVEN_DEFAULTMEMORYALLOCATOR->freeMD(ptr)
-#define RAVEN_Free2(ptr, pAllocator)                                    pAllocator->freeMD(ptr)
-#define RAVEN_New1(TYPE)											    ::new(alignof(TYPE), RAVEN_DEFAULTMEMORYALLOCATOR, 0, RAVEN_WFILENAME, __LINE__, "unknown") TYPE
-#define RAVEN_New2(TYPE, align)											::new(align, RAVEN_DEFAULTMEMORYALLOCATOR, 0, RAVEN_WFILENAME, __LINE__, "unknown") TYPE
-#define RAVEN_New3(TYPE, align, pAllocator)								::new(align, pAllocator, 0, RAVEN_WFILENAME, __LINE__, "unknown") TYPE
-#define RAVEN_Del1(ptr)                                                 RAVEN_NS::DeleteHelperMD(ptr, RAVEN_DEFAULTMEMORYALLOCATOR)
-#define RAVEN_Del2(ptr, pAllocator)                                     RAVEN_NS::DeleteHelperMD(ptr, pAllocator)
+#define RAVEN_ALLOC1(size)												RAVEN_DEFAULTMEMORYALLOCATOR->allocMD(size, RAVEN_ALIGNDEFAULT, 0, RAVEN_WFILENAME, __LINE__, "unknown")
+#define RAVEN_ALLOC2(size, align)										RAVEN_DEFAULTMEMORYALLOCATOR->allocMD(size, align, 0, RAVEN_WFILENAME, __LINE__, "unknown")
+#define RAVEN_ALLOC3(size, align, pAllocator)							pAllocator->allocMD(size, align, 0, RAVEN_WFILENAME, __LINE__, "unknown")
+#define RAVEN_FREE1(ptr)                                                RAVEN_DEFAULTMEMORYALLOCATOR->freeMD(ptr)
+#define RAVEN_FREE2(ptr, pAllocator)                                    pAllocator->freeMD(ptr)
+#define RAVEN_NEW1(TYPE)											    ::new(alignof(TYPE), RAVEN_DEFAULTMEMORYALLOCATOR, 0, RAVEN_WFILENAME, __LINE__, "unknown") TYPE
+#define RAVEN_NEW2(TYPE, align)											::new(align, RAVEN_DEFAULTMEMORYALLOCATOR, 0, RAVEN_WFILENAME, __LINE__, "unknown") TYPE
+#define RAVEN_NEW3(TYPE, align, pAllocator)								::new(align, pAllocator, 0, RAVEN_WFILENAME, __LINE__, "unknown") TYPE
+#define RAVEN_DEL1(ptr)                                                 RAVEN_NS::DeleteHelperMD(ptr, RAVEN_DEFAULTMEMORYALLOCATOR)
+#define RAVEN_DEL2(ptr, pAllocator)                                     RAVEN_NS::DeleteHelperMD(ptr, pAllocator)
 #endif
-#define RAVEN_Alloc(...)                                                RAVEN_PP_OVERLOAD(RAVEN_Alloc, __VA_ARGS__)
-#define RAVEN_Free(...)                                                 RAVEN_PP_OVERLOAD(RAVEN_Free, __VA_ARGS__)
-#define RAVEN_New(...)                                                  RAVEN_PP_OVERLOAD(RAVEN_New, __VA_ARGS__)
-#define RAVEN_Del(...)                                                  RAVEN_PP_OVERLOAD(RAVEN_Del, __VA_ARGS__)
+#define RAVEN_ALLOC(...)                                                RAVEN_PP_OVERLOAD(RAVEN_ALLOC, __VA_ARGS__)
+#define RAVEN_FREE(...)                                                 RAVEN_PP_OVERLOAD(RAVEN_FREE, __VA_ARGS__)
+#define RAVEN_NEW(...)                                                  RAVEN_PP_OVERLOAD(RAVEN_NEW, __VA_ARGS__)
+#define RAVEN_DEL(...)                                                  RAVEN_PP_OVERLOAD(RAVEN_DEL, __VA_ARGS__)

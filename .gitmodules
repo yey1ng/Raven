@@ -19,3 +19,6 @@
 [submodule "external/boost"]
 	path = external/boost
 	url = git@github.com:boostorg/boost.git
+[submodule "external/mimalloc"]
+	path = external/mimalloc
+	url = git@github.com:microsoft/mimalloc.git

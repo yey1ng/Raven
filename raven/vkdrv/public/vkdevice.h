@@ -11,13 +11,21 @@ description:
 
 RAVEN_NAMESPACE_BEGIN
 
-enum class QUEUEFAMILY_USAGE : U16
+enum class VK_QUEUEFAMILY_USAGE : U16
 {
 	GRAPHIC_QUEUEFAMILY,
 	COMPUTE_QUEUEFAMILY,
 	TRANSFER_QUEUEFAMILY,
 	PRESENT_QUEUEFAMILY,
 	QUEUEFAMILY_COUNT
+};
+
+struct VkQueueAssignment
+{
+	VK_QUEUEFAMILY_USAGE m_QueueFamilyUsage;
+	U16             m_QueueFamily;
+	U16             m_QueueStart;
+	U16             m_QueueCount;
 };
 
 class RVKDevice : public RVKInstanceChild
@@ -207,11 +215,11 @@ public:
 	RVKDevice& operator=(RVKDevice&&) = delete;
 
 	RVKDevice(RVKInstance* i_pVKInstance) noexcept;
-	RVKDevice(RVKInstance* i_pVKInstance, U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo, std::vector<QUEUEFAMILY_USAGE>& i_QueueFamilyUsages) noexcept;
+	RVKDevice(RVKInstance* i_pVKInstance, U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo, std::vector<VkQueueAssignment>& i_QueueAssignments) noexcept;
 	~RVKDevice() noexcept;
 
 	Bool isCreated() const noexcept;
-	void create(U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo, std::vector<QUEUEFAMILY_USAGE>& i_QueueFamilyUsages) noexcept;
+	void create(U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo, std::vector<VkQueueAssignment>& i_QueueAssignments) noexcept;
 	void setSurface(VkSurfaceKHR i_Surface) noexcept;
 	void destroy() noexcept;
 	VkDevice handle() noexcept;
@@ -221,19 +229,24 @@ public:
 
 	VkDescriptorPool getDescriptorPool() const noexcept;
 
-	U32				getQueueCount(QUEUEFAMILY_USAGE i_Usage) const noexcept;
-	VkQueue			getQueue(QUEUEFAMILY_USAGE i_Usage) const noexcept;
-	VkCommandPool	getCommandPool(QUEUEFAMILY_USAGE i_Usage) const noexcept;
+	U32				getQueueFamilyIndex(VK_QUEUEFAMILY_USAGE i_Usage) const noexcept;
+	U32				getQueueCount(VK_QUEUEFAMILY_USAGE i_Usage) const noexcept;
+	VkQueue			getQueue(VK_QUEUEFAMILY_USAGE i_Usage, U32 i_Index = 0) const noexcept;
+	VkCommandPool	getCommandPool(VK_QUEUEFAMILY_USAGE i_Usage) const noexcept;
 
+	U32				getGraphicsQueueFamilyIndex() const noexcept;
 	U32				getGraphicsQueueCount() const noexcept;
 	VkQueue			getGraphicsQueue(U32 i_Index = 0) const noexcept;
 	VkCommandPool	getGraphicsCommandPool() const noexcept;
+	U32				getComputeQueueFamilyIndex() const noexcept;
 	U32				getComputeQueueCount() const noexcept;
 	VkQueue			getComputeQueue(U32 i_Index = 0) const noexcept;
 	VkCommandPool	getComputeCommandPool() const noexcept;
+	U32				getTransferQueueFamilyIndex() const noexcept;
 	U32				getTransferQueueCount() const noexcept;
 	VkQueue			getTransferQueue(U32 i_Index = 0) const noexcept;
 	VkCommandPool	getTransferCommandPool() const noexcept;
+	U32				getPresentQueueFamilyIndex() const noexcept;
 	U32				getPresentQueueCount() const noexcept;
 	VkQueue			getPresentQueue(U32 i_Index = 0) const noexcept;
 	VkCommandPool	getPresentCommandPool() const noexcept;
@@ -252,20 +265,28 @@ private:
 	U32 m_PhysicalDeviceIdx = 0;
 	VkDevice m_hDevice = VK_NULL_HANDLE;
 	VkDeviceCreateInfo m_CreateInfo{};
-	std::vector<QUEUEFAMILY_USAGE> m_QueueFamilyUsages{};
 	VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
 	VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 	VmaAllocator m_VmaAllocator = VK_NULL_HANDLE;
 	VmaVulkanFunctions m_VmaVulkanFunction{};
 
-	std::vector<VkQueue> m_GraphicsQueues{};
-	std::optional<VkCommandPool> m_GraphicsCommandPool;
-	std::vector<VkQueue> m_ComputeQueues{};
-	std::optional<VkCommandPool> m_ComputeCommandPool;
-	std::vector<VkQueue> m_TransferQueues{};
-	std::optional<VkCommandPool> m_TransferCommandPool;
-	std::vector<VkQueue> m_PresentQueues{};
-	std::optional<VkCommandPool> m_PresentCommandPool;
+	struct QueueFamilyInfo_t
+	{
+		VkQueueFlags			m_QueueFlags;
+		std::vector<VkQueue>	m_hQueues;
+		VkCommandPool			m_pCommandPool;
+	};
+	std::vector<QueueFamilyInfo_t>	m_QueueFamilies{};
+	std::vector<VkQueueAssignment> m_QueueAssignments{};
+
+	//std::vector<VkQueue> m_GraphicsQueues{};
+	//std::optional<VkCommandPool> m_GraphicsCommandPool;
+	//std::vector<VkQueue> m_ComputeQueues{};
+	//std::optional<VkCommandPool> m_ComputeCommandPool;
+	//std::vector<VkQueue> m_TransferQueues{};
+	//std::optional<VkCommandPool> m_TransferCommandPool;
+	//std::vector<VkQueue> m_PresentQueues{};
+	//std::optional<VkCommandPool> m_PresentCommandPool;
 
 	VkPhysicalDeviceFeatures2 m_PhysicalDeviceFeatures2{};
 	VkPhysicalDeviceFeatures* m_PhysicalDeviceFeatures = VK_NULL_HANDLE;
