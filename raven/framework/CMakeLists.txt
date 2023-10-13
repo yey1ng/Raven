@@ -33,6 +33,10 @@ else()
     message("ERROR: unsupported module mode.")
 endif()
 
+if (MSVC)
+    target_compile_options(${RAVENCM_MOD_NAME} PRIVATE "/MP")
+endif()
+
 if(RAVENCM_MOD_FINALDEFINES)
     target_compile_definitions(${RAVENCM_MOD_NAME} PRIVATE ${RAVENCM_MOD_FINALDEFINES})
 endif()

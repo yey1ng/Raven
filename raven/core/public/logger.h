@@ -10,13 +10,13 @@ description:
 #include <string>
 #include "typedefs.h"
 
-// Macros for quick access. File and line are added through the respective macros.
-#define R_LOG_INFO(...) log(formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::INFO)
-#define R_LOG_WARNING(...) log(formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::WARNING)
-#define R_LOG_ERROR(...) log(formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::ERR)
-#define R_LOG_FATAL(b, ...) if(!(b)) { log(formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::FATAL); }
-
 RAVEN_NAMESPACE_BEGIN
+
+// Macros for quick access. File and line are added through the respective macros.
+#define R_LOG_INFO(...) log(RAVEN_NS::formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::INFO)
+#define R_LOG_WARNING(...) log(RAVEN_NS::formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::WARNING)
+#define R_LOG_ERROR(...) log(RAVEN_NS::formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::ERR)
+#define R_LOG_FATAL(b, ...) if(!(b)) { log(RAVEN_NS::formatString(__VA_ARGS__), std::string(__FILE__), __LINE__, RAVEN_NS::FATAL); }
 
 enum LogLevel
 {
@@ -57,7 +57,7 @@ extern void enableDebugMode();
 extern void disableDebugMode();
 
 // Main log method. File, line and level are required in addition to log message.
-extern void log(std::string text, std::string file, int line, LogLevel level);
+extern void RAVEN_CORE_API log(std::string text, std::string file, int line, LogLevel level);
 
 // Simplified API.
 extern void logInfo(std::string text);
@@ -67,5 +67,7 @@ extern void logFatal(std::string text);
 
 // Explicitly flush all streams.
 extern void flush();
+
+extern std::string RAVEN_CORE_API formatString(const char* format, ...);
 
 RAVEN_NAMESPACE_END

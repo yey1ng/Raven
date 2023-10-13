@@ -271,7 +271,7 @@ void RVKDevice::create(U32 i_PhysicalDeviceIdx, VkDeviceCreateInfo& i_CreateInfo
 			const auto& l_QueueCreateInfo = m_CreateInfo.pQueueCreateInfos[i];
 			for (U32 j = 0; j < l_QueueCreateInfo.queueCount; ++j)
 			{
-				VkQueue l_Queue;
+				VkQueue l_Queue{};
 				VkDeviceQueueInfo2 l_QueueInfo2{};
 				l_QueueInfo2.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
 				l_QueueInfo2.queueFamilyIndex = l_QueueCreateInfo.queueFamilyIndex;
@@ -297,6 +297,12 @@ void RVKDevice::destroy() noexcept
 		R_LOG_ERROR("VkDevice isn't destroy");
 
 	uninitVma();
+
+	for (U32 i = 0; i < m_CreateInfo.queueCreateInfoCount; ++i)
+	{
+		U32 l_QueueFamilyIndex = m_CreateInfo.pQueueCreateInfos[i].queueFamilyIndex;
+		rvkDestroyCommandPool(m_hDevice, m_QueueFamilies[l_QueueFamilyIndex].m_pCommandPool, allocatorVK());
+	}
 
 	rvkDestroyDescriptorPool(m_hDevice, m_DescriptorPool, allocatorVK());
 	m_DescriptorPool = VK_NULL_HANDLE;
@@ -502,6 +508,5 @@ void RVKDevice::uninitVma() noexcept
 	vmaDestroyAllocator(m_VmaAllocator);
 	m_VmaAllocator = VK_NULL_HANDLE;
 }
-
 
 RAVEN_NAMESPACE_END

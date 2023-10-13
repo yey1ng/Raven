@@ -96,42 +96,43 @@ Module_vkdrv::Module_vkdrv() noexcept
 			R_LOG_ERROR("Not Found Graphics QueueFamily");
 
 		std::vector<VkDeviceQueueCreateInfo> l_DeviceQueueCreateInfos{};
-		U32 l_ComputeQueueFamilyIdx;
-		U32 l_TransferQueueFamilyIdx;
-		U32 l_GraphicsQueueFamilyIdx;
-		U32 l_PresentQueueFamilyIdx;
-		l_GraphicsQueueFamilyIdx = l_GraphicsQueueFamilyIdxs[0];
-		l_PresentQueueFamilyIdx = l_GraphicsQueueFamilyIdx;
-		if (l_ComputeQueueFamilyIdxs.size() > 0)
-			l_ComputeQueueFamilyIdx = l_ComputeQueueFamilyIdxs[0];
-		else
-			l_ComputeQueueFamilyIdx = l_GraphicsQueueFamilyIdx;
-		if (l_TransferQueueFamilyIdxs.size() > 0)
-			l_TransferQueueFamilyIdx = l_TransferQueueFamilyIdxs[0];
-		else
-			l_TransferQueueFamilyIdx = l_GraphicsQueueFamilyIdx;
-
 		std::vector<VkQueueAssignment> l_QueueFamilyAssignments;
-		l_QueueFamilyAssignments.resize(4);
-		l_QueueFamilyAssignments[0].m_QueueFamilyUsage = VK_QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY;
-		l_QueueFamilyAssignments[0].m_QueueFamily = l_ComputeQueueFamilyIdx;
-		l_QueueFamilyAssignments[0].m_QueueStart = 0;
-		l_QueueFamilyAssignments[0].m_QueueCount = 1;
-		l_QueueFamilyAssignments[1].m_QueueFamilyUsage = VK_QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY;
-		l_QueueFamilyAssignments[1].m_QueueFamily = l_TransferQueueFamilyIdx;
-		l_QueueFamilyAssignments[1].m_QueueStart = 0;
-		l_QueueFamilyAssignments[1].m_QueueCount = 1;
-		l_QueueFamilyAssignments[2].m_QueueFamilyUsage = VK_QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY;
-		l_QueueFamilyAssignments[2].m_QueueFamily = l_GraphicsQueueFamilyIdx;
-		l_QueueFamilyAssignments[2].m_QueueStart = 0;
-		l_QueueFamilyAssignments[2].m_QueueCount = 1;
-		l_QueueFamilyAssignments[3].m_QueueFamilyUsage = VK_QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY;
-		l_QueueFamilyAssignments[3].m_QueueFamily = l_PresentQueueFamilyIdx;
-		l_QueueFamilyAssignments[3].m_QueueStart = 0;
-		l_QueueFamilyAssignments[3].m_QueueCount = 1;
 
 		// DeviceQueueCreateInfo
 		{
+			U32 l_ComputeQueueFamilyIdx;
+			U32 l_TransferQueueFamilyIdx;
+			U32 l_GraphicsQueueFamilyIdx;
+			U32 l_PresentQueueFamilyIdx;
+			l_GraphicsQueueFamilyIdx = l_GraphicsQueueFamilyIdxs[0];
+			l_PresentQueueFamilyIdx = l_GraphicsQueueFamilyIdx;
+			if (l_ComputeQueueFamilyIdxs.size() > 0)
+				l_ComputeQueueFamilyIdx = l_ComputeQueueFamilyIdxs[0];
+			else
+				l_ComputeQueueFamilyIdx = l_GraphicsQueueFamilyIdx;
+			if (l_TransferQueueFamilyIdxs.size() > 0)
+				l_TransferQueueFamilyIdx = l_TransferQueueFamilyIdxs[0];
+			else
+				l_TransferQueueFamilyIdx = l_GraphicsQueueFamilyIdx;
+
+			l_QueueFamilyAssignments.resize(4);
+			l_QueueFamilyAssignments[0].m_QueueFamilyUsage = VK_QUEUEFAMILY_USAGE::COMPUTE_QUEUEFAMILY;
+			l_QueueFamilyAssignments[0].m_QueueFamily = l_ComputeQueueFamilyIdx;
+			l_QueueFamilyAssignments[0].m_QueueStart = 0;
+			l_QueueFamilyAssignments[0].m_QueueCount = 1;
+			l_QueueFamilyAssignments[1].m_QueueFamilyUsage = VK_QUEUEFAMILY_USAGE::TRANSFER_QUEUEFAMILY;
+			l_QueueFamilyAssignments[1].m_QueueFamily = l_TransferQueueFamilyIdx;
+			l_QueueFamilyAssignments[1].m_QueueStart = 0;
+			l_QueueFamilyAssignments[1].m_QueueCount = 1;
+			l_QueueFamilyAssignments[2].m_QueueFamilyUsage = VK_QUEUEFAMILY_USAGE::GRAPHIC_QUEUEFAMILY;
+			l_QueueFamilyAssignments[2].m_QueueFamily = l_GraphicsQueueFamilyIdx;
+			l_QueueFamilyAssignments[2].m_QueueStart = 0;
+			l_QueueFamilyAssignments[2].m_QueueCount = 1;
+			l_QueueFamilyAssignments[3].m_QueueFamilyUsage = VK_QUEUEFAMILY_USAGE::PRESENT_QUEUEFAMILY;
+			l_QueueFamilyAssignments[3].m_QueueFamily = l_PresentQueueFamilyIdx;
+			l_QueueFamilyAssignments[3].m_QueueStart = 0;
+			l_QueueFamilyAssignments[3].m_QueueCount = 1;
+
 			const float l_DefaultQueuePriority(0.0f);
 			// If transfer family index differs, we need an additional queue create info for the transfer queue
 			if (l_ComputeQueueFamilyIdx != l_GraphicsQueueFamilyIdx)
@@ -163,6 +164,7 @@ Module_vkdrv::Module_vkdrv() noexcept
 		}
 		
 		// EnableExtension
+		std::vector<const char*> l_EnableExtensions{};
 		{
 			U32 l_MaxExtensionsCount = 0;
 			std::vector<VkExtensionProperties> l_Extensions{};
@@ -171,7 +173,6 @@ Module_vkdrv::Module_vkdrv() noexcept
 			l_Result = m_pVkInstance->rvkEnumerateDeviceExtensionProperties(m_pVkInstance->getPhysicalDevice(l_PhysicalDeviceIdx), R_NULL, &l_MaxExtensionsCount, l_Extensions.data());
 
 			std::set<const char*> l_SupportExtensions{};
-			std::vector<const char*> l_EnableExtensions{};
 			for (const auto& l_Extension : l_Extensions)
 			{
 				l_SupportExtensions.emplace(l_Extension.extensionName);
@@ -289,9 +290,23 @@ Module_vkdrv::Module_vkdrv() noexcept
 		VkDeviceCreateInfo l_DeviceCreateInfo{};
 		l_DeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		l_DeviceCreateInfo.pNext = R_NULL;
-		l_DeviceCreateInfo.queueCreateInfoCount = l_DeviceQueueCreateInfos.size();
+		l_DeviceCreateInfo.queueCreateInfoCount = static_cast<U32>(l_DeviceQueueCreateInfos.size());
+		l_DeviceCreateInfo.pQueueCreateInfos = l_DeviceQueueCreateInfos.data();
+		l_DeviceCreateInfo.enabledExtensionCount = static_cast<U32>(l_EnableExtensions.size());
+		l_DeviceCreateInfo.ppEnabledExtensionNames = l_EnableExtensions.data();
+		l_DeviceCreateInfo.pEnabledFeatures = &m_EnablePhysicalDeviceFeatures2.features;
 
+		m_pVkDevice = RAVEN_NEW(RVKDevice)(m_pVkInstance);
+		m_pVkDevice->create(l_PhysicalDeviceIdx, l_DeviceCreateInfo, l_QueueFamilyAssignments);
 	}
+}
+
+Module_vkdrv::~Module_vkdrv() noexcept
+{
+	RAVEN_DEL(m_pVkDevice);
+	m_pVkDevice = R_NULL;
+	RAVEN_DEL(m_pVkInstance);
+	m_pVkInstance = R_NULL;
 }
 
 RAVEN_NAMESPACE_END

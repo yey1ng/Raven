@@ -287,17 +287,6 @@ private:
 	//std::optional<VkCommandPool> m_TransferCommandPool;
 	//std::vector<VkQueue> m_PresentQueues{};
 	//std::optional<VkCommandPool> m_PresentCommandPool;
-
-	VkPhysicalDeviceFeatures2 m_PhysicalDeviceFeatures2{};
-	VkPhysicalDeviceFeatures* m_PhysicalDeviceFeatures = VK_NULL_HANDLE;
-	VkPhysicalDeviceVulkan11Features* m_pPhysicalDeviceVulkan11Featrues = VK_NULL_HANDLE;
-	VkPhysicalDeviceVulkan12Features* m_pPhysicalDeviceVulkan12Featrues = VK_NULL_HANDLE;
-	VkPhysicalDeviceVulkan13Features* m_pPhysicalDeviceVulkan13Featrues = VK_NULL_HANDLE;
-	VkPhysicalDeviceSynchronization2FeaturesKHR* m_pPhysicalDeviceSynchronization2FeaturesKHR = VK_NULL_HANDLE;
-	VkPhysicalDeviceAccelerationStructureFeaturesKHR* m_pPhysicalDeviceAccelerationStructureFeaturesKHR = VK_NULL_HANDLE;
-	VkPhysicalDeviceRayTracingPipelineFeaturesKHR* m_pPhysicalDeviceRayTracingPipelineFeaturesKHR = VK_NULL_HANDLE;
-	VkPhysicalDeviceRayQueryFeaturesKHR* m_pPhysicalDeviceRayQueryFeatruesKHR = VK_NULL_HANDLE;
-	VkPhysicalDeviceDescriptorBufferFeaturesEXT* m_pPhysicalDeviceDescriptorBufferFeaturesEXT = VK_NULL_HANDLE;
 };
 
 RAVEN_NAMESPACE_END

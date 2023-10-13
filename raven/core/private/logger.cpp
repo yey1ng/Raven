@@ -37,7 +37,7 @@ struct LoggerState
 	bool					m_Debug;
 };
 
-LoggerState g_Logger;
+LoggerState g_Logger{};
 
 void initialize()
 {
@@ -318,6 +318,19 @@ void flush()
 	{
 		g_Logger.m_Stream.flush();
 	}
+}
+
+std::string formatString(const char* format, ...) 
+{
+	const int bufferSize = 1024;
+	char buffer[bufferSize];
+
+	va_list args;
+	va_start(args, format);
+	std::vsnprintf(buffer, bufferSize, format, args);
+	va_end(args);
+
+	return std::string(buffer);
 }
 
 RAVEN_NAMESPACE_END

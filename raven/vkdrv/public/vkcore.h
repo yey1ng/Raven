@@ -7,7 +7,7 @@ description:
 
 #pragma once
 #include "vkdefine.h"
-#include <core/public/module.h>
+#include <core/public/core.h>
 #include <configuration_vkdrv.h>
 
 #define VK_USE_PLATFORM_WIN32_KHR

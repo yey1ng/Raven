@@ -1,6 +1,24 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
+include("./utilities.cmake")
+
 project("Raven")
+
+if(WIN32)
+    add_compile_options(/wd4008)
+    add_compile_options(/wd4018)
+    add_compile_options(/wd4100)
+    add_compile_options(/wd4127)
+    add_compile_options(/wd4189)
+    add_compile_options(/wd4239)
+    add_compile_options(/wd4251)
+    add_compile_options(/wd4324)
+    add_compile_options(/wd4456)
+    add_compile_options(/wd4459)
+    add_compile_options(/wd4702)
+    add_compile_options(/wd4819)
+    add_compile_options(/wd4996)
+endif()
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 # RAVEN定义 (常量，只能通过修改CMakeLists.txt文件改变)
@@ -43,7 +61,7 @@ endif()
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 set(RAVENCM_GLOBAL_DISABLEZEROCHECK             ${RAVENCM_USER_DISABLEZEROCHECK})
-set(RAVENCM_GLOBAL_DEFINES                      "-DUNICODE" "-D_UNICODE")
+set(RAVENCM_GLOBAL_DEFINES                      "-DUNICODE" "-D_UNICODE" "-DNO_WARN_MBCS_MFC_DEPRECATION")
 set(RAVENCM_GLOBAL_INCLUDEDIRS                  "./")
 set(RAVENCM_GLOBAL_LIBRARYDIRS                  "./")
 set(RAVENCM_GLOBAL_MODULETYPE                   "RAVENCFG_E_${RAVENCM_USER_MODULETYPE}")
@@ -140,6 +158,11 @@ set_property(TARGET boost_wserialization PROPERTY FOLDER "external/boost")
 
 add_subdirectory(external/mimalloc)
 set_property(TARGET mimalloc PROPERTY FOLDER "external/mimalloc")
+set_property(TARGET mimalloc-obj PROPERTY FOLDER "external/mimalloc")
+set_property(TARGET mimalloc-static PROPERTY FOLDER "external/mimalloc")
+set_property(TARGET mimalloc-test-api PROPERTY FOLDER "external/mimalloc")
+set_property(TARGET mimalloc-test-api-fill PROPERTY FOLDER "external/mimalloc")
+set_property(TARGET mimalloc-test-stress PROPERTY FOLDER "external/mimalloc")
 
 mark_as_advanced(FORCE ASSIMP_ANDROID_JNIIOSYSTEM)
 mark_as_advanced(FORCE ASSIMP_ARCHIVE_OUTPUT_DIRECTORY)
@@ -328,9 +351,10 @@ set(RAVENCM_MOD_FRAMEWORK_PUBHEADER             "core.h")
 set(RAVENCM_MOD_INCLUDEDIRS                     "")
 set(RAVENCM_MOD_LIBRARYDIRS                     "")
 set(RAVENCM_MOD_LIBRARIES                       "")
-set(RAVENCM_MOD_DEPENDMODULES                   "")
+set(RAVENCM_MOD_DEPENDMODULES                   "mimalloc")
 set(RAVENCM_MOD_DEFINES                         "")
 set(RAVENCM_MOD_PLUGINS                         "")
+RAVENCM_USE_MiMalloc()
 
 add_subdirectory(${RAVENCM_MOD_PATH}${RAVENCM_MOD_NAME})
 install( 
@@ -356,6 +380,7 @@ set(RAVENCM_MOD_LIBRARIES                       "")
 set(RAVENCM_MOD_DEPENDMODULES                   "core")
 set(RAVENCM_MOD_DEFINES                         "")
 set(RAVENCM_MOD_PLUGINS                         "")
+RAVENCM_USE_Vulkan()
 
 add_subdirectory(${RAVENCM_MOD_PATH}${RAVENCM_MOD_NAME})
 install( 
@@ -378,7 +403,7 @@ set(RAVENCM_MOD_FRAMEWORK_PUBHEADER             "framework.h")
 set(RAVENCM_MOD_INCLUDEDIRS                     "")
 set(RAVENCM_MOD_LIBRARYDIRS                     "")
 set(RAVENCM_MOD_LIBRARIES                       "")
-set(RAVENCM_MOD_DEPENDMODULES                   "core" "vkcore")
+set(RAVENCM_MOD_DEPENDMODULES                   "core" "vkdrv")
 set(RAVENCM_MOD_DEFINES                         "")
 set(RAVENCM_MOD_PLUGINS                         "")
 

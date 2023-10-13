@@ -17,7 +17,7 @@ RMemoryAllocator_MI::RMemoryAllocator_MI() noexcept
 	m_MemoryUsed = 0;
 }
 
-RMemoryAllocator_MI::RMemoryAllocator_MI() noexcept
+RMemoryAllocator_MI::~RMemoryAllocator_MI() noexcept
 {
 	R_LOG_FATAL((m_AllocCount == 0), "Memory Leak!!!");
 	R_LOG_FATAL((m_MemoryUsed == 0), "Memory Leak!!!");

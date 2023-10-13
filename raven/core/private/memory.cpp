@@ -30,6 +30,8 @@ RAVEN_CORE_API void RAVEN_Memory_Uninit() noexcept
 	g_pDefaultMemoryAllocator = R_NULL;
 }
 
+RAVEN_NAMESPACE_END
+
 // FAST NEW
 RAVEN_CORE_API void* operator new(size_t i_Size, RAVEN_NS::Uint i_AlignMode, RAVEN_NS::IMemoryAllocator_MT* i_pAllocator) noexcept
 {
@@ -50,7 +52,7 @@ RAVEN_CORE_API void* operator new(size_t i_Size, RAVEN_NS::Uint i_AlignMode, RAV
 	return i_pAllocator->allocMD(i_Size, i_AlignMode, i_MDSize);
 }
 
-RAVEN_CORE_API void  operator delete(void* p, RAVEN_NS::Uint i_AlignMode, RAVEN_NS::IMemoryAllocator_MT* i_pAllocator, RAVEN_NS::U16 i_MDSize) noexcept;
+RAVEN_CORE_API void  operator delete(void* p, RAVEN_NS::Uint i_AlignMode, RAVEN_NS::IMemoryAllocator_MT* i_pAllocator, RAVEN_NS::U16 i_MDSize) noexcept
 {
 	R_LOG_FATAL(i_pAllocator == R_NULL, "Memory allocator is NULL");
 	return i_pAllocator->freeMD(p);
@@ -79,5 +81,3 @@ RAVEN_CORE_API void  operator delete(void* p, void* i_Ptr, RAVEN_NS::IMemoryAllo
 {
 	
 }
-
-RAVEN_NAMESPACE_END
